@@ -1,0 +1,1 @@
+char* filetobuf(char *file);
