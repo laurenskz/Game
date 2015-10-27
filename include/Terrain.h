@@ -17,6 +17,6 @@
 
 void renderTerrain(float elapsedTime);
 void initTerrain(void);
-void generateTerrain(void);
+void generateTerrain(GLfloat xTranslation, GLfloat zTranslation);
 
 #endif /* TERRAIN_H_ */

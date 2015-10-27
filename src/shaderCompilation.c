@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <glew.h>
+
 #include "../include/shaderCompilation.h"
 #include "../include/utils.h"
+
 int test(){
 	const GLfloat diamond[16][3] = {
 			{  -0.25,  0.25,-0.25  },

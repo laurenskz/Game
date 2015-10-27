@@ -11,7 +11,11 @@
 #include <glew.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>//Want NULL
 
+#include "../include/Camera.h"
+
+#define ARRAY_EXPANSION 70
 
 typedef struct renderable{
 
@@ -22,5 +26,11 @@ typedef struct renderable{
 } renderable;
 
 void renderWorld(float elapsedTime);
+
+void worldInit(void);
+
+void worldLogic(float elapsedTime);
+
+int firstEmptySpot(void** array, int sizeOfElement, int* arraySize);
 
 #endif /* WORLD_H_ */
