@@ -9,7 +9,7 @@ char newMouse;
 char mouseInputAvailable;
 GLFWwindow* window;
 
-int main(void)
+int pain(void)
 {
 	if(init()==-1)return -1;
 	mainLoop();

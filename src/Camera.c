@@ -15,6 +15,8 @@ vec3* position;
 vec3* lookat;
 vec3* upVector;
 char * keys;
+char actual = 0;
+mat4* viewMatrixCache;
 float xAngle, yAngle = 0;
 
 void cameraInit(void){
@@ -27,6 +29,7 @@ void cameraInit(void){
 }
 
 void cameraLogic(float elapsedTime){
+	actual = 0;//View matrix has to be recalculated
 	float speed = elapsedTime*SPEED;
 	vec3* direction = normalizeVec3Free(subVec3(lookat,position));
 	vec3* timed = scalarTimesVec3(direction,speed);
@@ -89,6 +92,8 @@ void incrementyAngle(float toAdd){
 
 
 mat4* cameraGetViewMatrix(){
+	if(actual)return viewMatrixCache;
+	free(viewMatrixCache);//If it is not actual we have to free the previous view matrix.
 	vec3* z = normalizeVec3Free(subVec3(position,lookat));
 	vec3* x = normalizeVec3Free(crossProduct(upVector,z));
 	vec3* y = crossProduct(z,x);
@@ -106,6 +111,8 @@ mat4* cameraGetViewMatrix(){
 	lookatHalf->data[13] = -dotProduct(y,position);
 	lookatHalf->data[14] = -dotProduct(z,position);
 	lookatHalf->data[15] = 1;
+	actual = 1;
+	viewMatrixCache = lookatHalf;
 	return lookatHalf;
 }
 
