@@ -8,15 +8,26 @@
 #ifndef TERRAIN_H_
 #define TERRAIN_H_
 
-#define VERTICES_PER_SIDE 64
-#define VERTEX_LENGTH 8;
+#define VERTICES_PER_SIDE 4
+#define VERTEX_LENGTH 7;
+
 
 #include <glew.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "World.h"
+
+typedef struct TerrainTile{
+	char inUse;
+	RenderableMold mold;//There basically is just one instance for each mold of terrain.
+	vec3 position;//This is here to determine if we can get rid of it already
+}TerrainTile;
+
 
 void renderTerrain(float elapsedTime);
 void initTerrain(void);
-void generateTerrain(GLfloat xTranslation, GLfloat zTranslation);
+TerrainTile generateTerrainTile(GLfloat xTranslation, GLfloat zTranslation, GLuint textureID);
+void addTerrainTile(TerrainTile tile);
+
 
 #endif /* TERRAIN_H_ */

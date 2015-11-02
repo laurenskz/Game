@@ -9,4 +9,6 @@ typedef struct image{
 
 image* createTexture(char* filePath);
 void freeImage(image* imagePointer);
+
+GLuint textureToID(char* filePath);
 #endif

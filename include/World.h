@@ -13,23 +13,19 @@
 #include <stdlib.h>
 #include <stddef.h>//Want NULL
 
+#include "Types.h"
 #include "../include/Camera.h"
 #include "../include/mmath.h"
 #include "../include/Shaders.h"//Yeah we do things with shaders here
 #include "../include/Projection.h"
+#include "OBJLoader.h"
+#include "textureLoader.h"
+#include "WorldPopulater.h"
 
 #define ARRAY_EXPANSION 30
-#define INITIAL_RENDERABLES 70
+#define INITIAL_ARRAY_SIZE 70
 
-typedef struct Renderable{
-	char inUse;
-	vec3 position, rotation, scale;
-	GLuint vao;
-	int ibo;//Can be negative if no ibo is used.
-	GLuint textureID;
-	GLuint size;//The amount of vertices to draw
-	Shader* shaderProgram;
-} Renderable;
+
 
 void renderWorld(float elapsedTime);
 
@@ -47,8 +43,18 @@ mat4* createModelMatrix(Renderable* r);
 
 mat4* createMVP(Renderable* r);
 
+void setShaderUploadMVP(Renderable* r);
+
+void drawCall(RenderableMold* r);
+
+void setShaderuploadVP(RenderableMold* r);
+
 void uploadMVP(Renderable* r);
 
 char isDifferent(vec3 v);
+
+RenderableMold* loadRenderableMold(char* objFilePath, char* texture);
+
+void moldDefaultRenderer(RenderableMold* r);
 
 #endif /* WORLD_H_ */

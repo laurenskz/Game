@@ -3,6 +3,7 @@
 #include <FreeImage.h>
 #include <glew.h>
 #include <string.h>
+#include "../include/OBJLoader.h"
 
 typedef struct image{
 	int width;
@@ -10,17 +11,10 @@ typedef struct image{
 	GLubyte* texture;
 } image;
 
-typedef struct vec3{
-	float x,y,z;
-} vec3;
-
-typedef struct vec2{
-	float x,y;
-} vec2;
 
 
-int getContents(char* fileName);
-int analyzeString(char* fileContents, int length);
+int getContents(char* fileName, RenderableMold* mold);
+int analyzeString(char* fileContents, int length, RenderableMold* mold);
 void skipSpaces(int* p,char* fileContents);
 void seekEndOfNumber(int* p, char* fileContents);
 void fillNumbers(char** spaceToStore,char* fileContents,int place, int times);
@@ -32,11 +26,11 @@ vec3* addElementVec3(vec3 element,vec3* array,int* length,int* pointer);
 void addGLElementVec3(vec3 element,GLfloat** array,int* length,int* pointer);
 void addGLElementVec2(vec2 element,GLfloat** array,int* length,int* pointer);
 
-GLuint loadObjToVAO(char* filePath){
-	return getContents(filePath);
+void loadObjToVAO(char* filePath, RenderableMold* mold){
+	getContents(filePath, mold);
 }
 
-int getContents(char* fileName){
+int getContents(char* fileName, RenderableMold* mold){
 	char * buffer = 0;
 	long length;
 	FILE * f = fopen (fileName, "rb");
@@ -53,10 +47,9 @@ int getContents(char* fileName){
 	  fclose (f);
 	}
 	buffer[length] = '\0';
-	return analyzeString(buffer,length);
+	return analyzeString(buffer,length, mold);
 }
-
-int analyzeString(char* fileContents,int length){
+int analyzeString(char* fileContents,int length, RenderableMold* mold){
 	//We need to allocate a bunch of stuff to store all the data from the file in
 	vec3* vertices = malloc(sizeof(vec3)*100);
 	int verticesLength = 100;
@@ -127,26 +120,9 @@ int analyzeString(char* fileContents,int length){
 		place+=2;//We want to skip the \r which place currently points to and also the \n which is after that
 		//After this place points to the first character on the next line.
 	}
-	GLuint vao, vbo, vbo2, vbo3;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER,vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*verticesGlPointer,verticesGl,GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(0);
-	glGenBuffers(1, &vbo2);
-	glBindBuffer(GL_ARRAY_BUFFER,vbo2);
-	glBufferData(GL_ARRAY_BUFFER, texturesGlLength * sizeof(GLfloat),texturesGl,GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(1);
-	glGenBuffers(1, &vbo3);
-	glBindBuffer(GL_ARRAY_BUFFER,vbo3);
-	glBufferData(GL_ARRAY_BUFFER, normalsGlLength * sizeof(GLfloat),normalsGl,GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(2);
-	printf("verticesGlLength %d",verticesGlPointer);
-	return vao;
+	mold->size = verticesGlLength/3;
+	loadToVAO(mold,(PointerWithSize){verticesGl,verticesGlPointer},(PointerWithSize){normalsGl,normalsGlLength},(PointerWithSize){texturesGl,texturesGlLength},(PointerWithSize){NULL,0});
+	return 0;
 }
 
 void fillNumbers(char** spaceToStore,char* fileContents,int localPlace, int times){

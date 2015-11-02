@@ -1,4 +1,6 @@
 #ifndef OBJ_LOADER
 #define OBJ_LOADER
-GLuint loadObjToVAO(char* path);
+#include "../include/utils.h"
+void loadObjToVAO(char* path, RenderableMold* mold);
+
 #endif

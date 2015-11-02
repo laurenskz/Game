@@ -9,7 +9,7 @@
 
 #define RAD 0.01745329251
 #define DIFFERENCE_TO_ANGLE 0.03f
-#define SPEED 6.0
+#define SPEED 47.0
 
 vec3* position;
 vec3* lookat;

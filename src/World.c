@@ -12,8 +12,11 @@ int renderablesSize;
 
 void worldInit(void){
 	cameraInit();
-	renderablesSize = INITIAL_RENDERABLES;
+	loadAllShaders();
+	renderablesSize = INITIAL_ARRAY_SIZE;
 	renderables = calloc(sizeof(Renderable),renderablesSize);
+	initTerrain();
+	populateWorld();
 }
 
 void addRenderable(Renderable r){
@@ -26,29 +29,67 @@ void worldLogic(float elapsedTime){
 	cameraLogic(elapsedTime);
 }
 
+RenderableMold* loadRenderableMold(char* objFilePath, char* texture){
+	RenderableMold* toReturn = malloc(sizeof(RenderableMold));
+	loadObjToVAO(objFilePath, toReturn);//Automatically stores the size of the obj object in our struct
+	toReturn->iboMode=-1;
+	toReturn->shaderProgram = getBasicShader();
+	toReturn->textureID = textureToID(texture);
+	return toReturn;
+}
+
 void renderWorld(float elapsedTime){
 	int i;
+	renderTerrain(elapsedTime);
 	for(i=0;i<renderablesSize;i++){
-
+		if(renderables[i].inUse){
+			worldDefaultRender(&renderables[i]);
+		}
 	}
 }
 
 void setShaderUploadMVP(Renderable* r){
-	glUseProgram(r->shaderProgram->id);
-		mat4* mvp = createMVP(r);
-		glUniformMatrix4fv(r->shaderProgram->MVPLocation,1,GL_FALSE,mvp);
-		free(mvp);
+
+	glUseProgram(r->mold->shaderProgram->id);
+	mat4* mvp = createMVP(r);
+	glUniformMatrix4fv(r->mold->shaderProgram->MVPLocation,1,GL_FALSE,mvp->data);
+	free(mvp);
 }
 
 void worldDefaultRender(Renderable* r){
+	setShaderUploadMVP(r);
+	glBindVertexArray(r->mold->vao);
+	glBindTexture(GL_TEXTURE_2D,r->mold->textureID);
+	drawCall(r->mold);
+}
 
-	if()
+void moldDefaultRenderer(RenderableMold* r){
+	setShaderuploadVP(r);
+	glBindVertexArray(r->vao);
+	glBindTexture(GL_TEXTURE_2D,r->textureID);
+	if(r->iboMode!=-1)glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,r->ibo);
+	drawCall(r);
+}
 
+void setShaderuploadVP(RenderableMold* r){
+	glUseProgram(r->shaderProgram->id);
+	mat4* vp = multiplyMat4Mat4(cameraGetViewMatrix(),getProjectionMatrix());
+	glUniformMatrix4fv(r->shaderProgram->MVPLocation,1,GL_FALSE,vp->data);
+	free(vp);
+}
+
+void drawCall(RenderableMold* r){
+	if(r->iboMode==-1){
+		glDrawArrays(GL_TRIANGLES,0,r->size);
+		return;
+	}
+	glDrawElements(GL_TRIANGLES,r->size,r->iboMode,0);
 }
 
 mat4* createMVP(Renderable* r){
 	mat4* model = createModelMatrix(r);
-	mat4 *projection = getProjectionMatrix(), *viewMatrix = cameraGetViewMatrix();
+	mat4 *projection = getProjectionMatrix();
+	mat4 *viewMatrix = cameraGetViewMatrix();
 	if(model==NULL){
 		return multiplyMat4Mat4(viewMatrix,projection);//These don't have to be freed by us. Which is nice
 	}
@@ -119,7 +160,6 @@ int firstEmptySpot(void** array, int sizeOfElement, int* arraySize){
 			return i;
 		}
 	}
-	printf("i = %d",i);
 	int toRet = *arraySize;//We already know that this is the position it is going to be (size of old array)
 	(*arraySize)+=ARRAY_EXPANSION;
 	void* newP = realloc(*array,(*arraySize)*sizeOfElement);
@@ -130,7 +170,7 @@ int firstEmptySpot(void** array, int sizeOfElement, int* arraySize){
 	//Now that we made the array bigger we have to make sure the next spots are marked as empty
 	i++;//Don't mark the spot we want to return as free
 	for(;i<(*arraySize);i++){
-		*((char*)(newP+(i*sizeOfElement))) = 7;
+		*((char*)(newP+(i*sizeOfElement))) = 0;
 	}
 	return toRet;
 }

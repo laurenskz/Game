@@ -4,27 +4,7 @@
 
 #include <glew.h>
 
-typedef struct vec2{
-	GLfloat x;
-	GLfloat y;
-} vec2;
-
-typedef struct vec3{
-	GLfloat x;
-	GLfloat y;
-	GLfloat z;
-} vec3;
-
-typedef struct vec4{
-	GLfloat x;
-	GLfloat y;
-	GLfloat z;
-	GLfloat w;
-} vec4;
-
-typedef struct mat4{
-	GLfloat data[16];
-} mat4;
+#include "Types.h"
 
 mat4* identityMat4(void);
 
