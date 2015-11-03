@@ -12,6 +12,7 @@ int renderablesSize;
 
 void worldInit(void){
 	cameraInit();
+	initLight();//Has to be done before the shaders are loaded.
 	loadAllShaders();
 	renderablesSize = INITIAL_ARRAY_SIZE;
 	renderables = calloc(sizeof(Renderable),renderablesSize);
@@ -33,7 +34,7 @@ RenderableMold* loadRenderableMold(char* objFilePath, char* texture){
 	RenderableMold* toReturn = malloc(sizeof(RenderableMold));
 	loadObjToVAO(objFilePath, toReturn);//Automatically stores the size of the obj object in our struct
 	toReturn->iboMode=-1;
-	toReturn->shaderProgram = getBasicShader();
+	toReturn->shaderProgram = getModelShader();
 	toReturn->textureID = textureToID(texture);
 	return toReturn;
 }
@@ -91,7 +92,16 @@ mat4* createMVP(Renderable* r){
 	mat4 *projection = getProjectionMatrix();
 	mat4 *viewMatrix = cameraGetViewMatrix();
 	if(model==NULL){
+		//We have to upload an identity matrix to the shader if it wants a model matrix
+		if(r->mold->shaderProgram->modelMLocation!=-1){
+			mat4* identity = identityMat4();
+			glUniformMatrix4fv(r->mold->shaderProgram->modelMLocation,1,GL_FALSE,identity->data);
+			free(identity);//give back the memory
+		}
 		return multiplyMat4Mat4(viewMatrix,projection);//These don't have to be freed by us. Which is nice
+	}//If the model !=null we can upload it to the shader if the shader supports it.
+	if(r->mold->shaderProgram->modelMLocation!=-1){
+		glUniformMatrix4fv(r->mold->shaderProgram->modelMLocation,1,GL_FALSE,model->data);
 	}
 	mat4* first = multiplyMat4Mat4(model,viewMatrix);
 	free(model);

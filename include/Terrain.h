@@ -9,7 +9,7 @@
 #define TERRAIN_H_
 
 #define VERTICES_PER_SIDE 4
-#define VERTEX_LENGTH 7;
+#define VERTEX_LENGTH 10;
 
 
 #include <glew.h>

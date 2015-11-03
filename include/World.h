@@ -21,6 +21,8 @@
 #include "OBJLoader.h"
 #include "textureLoader.h"
 #include "WorldPopulater.h"
+#include "Light.h"
+#include "Terrain.h"
 
 #define ARRAY_EXPANSION 30
 #define INITIAL_ARRAY_SIZE 70

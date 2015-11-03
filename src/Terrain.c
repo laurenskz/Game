@@ -13,11 +13,11 @@ int tilesSize;
 void initTerrain(void){
 	tilesSize = INITIAL_ARRAY_SIZE;
 	tiles = calloc(sizeof(TerrainTile),INITIAL_ARRAY_SIZE);
-	GLuint floor = textureToID("Path.jpg");
-	GLuint wood = textureToID("wood.jpg");
+	GLuint floor = textureToID("Resources/Path.jpg");
+	GLuint wood = textureToID("Resources/wood.jpg");
 	int i,j;
-	for(i=-39;i<100;i++)
-		for(j=-39;j<100;j++){
+	for(i=-20;i<20;i++)
+		for(j=-20;j<20;j++){
 			int x = i*VERTEX_LENGTH;
 			int z = -j*VERTEX_LENGTH;
 			TerrainTile tile = generateTerrainTile(x,z,(i+j)%2==0?floor:wood);
@@ -27,7 +27,6 @@ void initTerrain(void){
 
 void addTerrainTile(TerrainTile tile){
 	int place = firstEmptySpot((void**)&tiles,sizeof(TerrainTile),&tilesSize);
-	printf("place we got = %d\n", place);
 	if(place==-1)return;//Better luck next time
 	tiles[place] = tile;
 }
